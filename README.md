@@ -1,6 +1,6 @@
 ---
 ## Git Commands
- 
+| Command | Description | 
 |---|---|
 | `git branch -a` | List all branches |
 | `git checkout -b <name>` | Create & switch to new branch |
