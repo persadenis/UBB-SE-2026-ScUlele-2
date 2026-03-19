@@ -4480,7 +4480,7 @@
 											"top": 1305,
 											"width": 180.92431640625,
 											"height": 13,
-											"text": "+markRead(id)",
+											"text": "+markRead(id): Notification",
 											"horizontalAlignment": 0
 										}
 									],
@@ -27019,8 +27019,18 @@
 									"_parent": {
 										"$ref": "AAAAAAGc/cQL7fm/56Y="
 									},
-									"name": "id",
-									"type": ""
+									"name": "id"
+								},
+								{
+									"_type": "UMLParameter",
+									"_id": "AAAAAAGdBxU/jug5CXk=",
+									"_parent": {
+										"$ref": "AAAAAAGc/cQL7fm/56Y="
+									},
+									"type": {
+										"$ref": "AAAAAAGc/VnD+XWKUNU="
+									},
+									"direction": "return"
 								}
 							]
 						}
