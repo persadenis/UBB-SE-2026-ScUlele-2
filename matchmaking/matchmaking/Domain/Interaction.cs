@@ -21,6 +21,12 @@ namespace matchmaking.Domain
         public int ToProfileId { get; }
         public InteractionType Type { get; }
 
+        public Interaction(int fromProfileId, int toProfileId, InteractionType type)
+        {
+            FromProfileId = fromProfileId;
+            ToProfileId = toProfileId;
+            Type = type;
+        }
         public Interaction(int interactionId, int fromProfileId, int toProfileId, InteractionType type)
         {
             InteractionId = interactionId;
