@@ -16,20 +16,31 @@ namespace matchmaking.Domain
         public int NotificationId { get; }
         public int RecipientId { get; }
         public int FromId { get; }
-        public NotificationType NotificationType { get; }
+        public NotificationType Type { get; }
         public bool IsRead { get; set; }
         public DateTime CreatedAt { get; }
         public string Title { get; }
         public string Description { get; }
 
-        public Notification(int notificationId, int recipientId, int fromId, NotificationType notificationType, string title, string description)
+        public Notification(int recipientId, int fromId, NotificationType notificationType, string title, string description)
+        {
+            RecipientId = recipientId;
+            FromId = fromId;
+            Type = notificationType;
+            IsRead = false;
+            CreatedAt = DateTime.UtcNow;
+            Title = title;
+            Description = description;
+        }
+
+        public Notification(int notificationId, int recipientId, int fromId, NotificationType notificationType, bool isRead, DateTime createdAt, string title, string description)
         {
             NotificationId = notificationId;
             RecipientId = recipientId;
             FromId = fromId;
-            NotificationType = notificationType;
-            IsRead = false;
-            CreatedAt = DateTime.UtcNow;
+            Type = notificationType;
+            IsRead = isRead;
+            CreatedAt = createdAt;
             Title = title;
             Description = description;
         }

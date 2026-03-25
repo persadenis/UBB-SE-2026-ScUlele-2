@@ -14,6 +14,11 @@ namespace matchmaking.Domain
 
         public Photo() { }
 
+        public Photo(int userId, string location)
+        {
+            UserId = userId;
+            Location = location;
+        }
         public Photo(int photoId, int userId, string location)
         {
             PhotoId = photoId;

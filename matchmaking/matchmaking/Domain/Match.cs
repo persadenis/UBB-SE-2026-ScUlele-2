@@ -12,6 +12,11 @@ namespace matchmaking.Domain
         public int User1Id { get; }
         public int User2Id { get; }
 
+        public Match(int user1Id, int user2Id)
+        {
+            User1Id = user1Id;
+            User2Id = user2Id;
+        }
         public Match(int matchId, int user1Id, int user2Id)
         {
             MatchId = matchId;
