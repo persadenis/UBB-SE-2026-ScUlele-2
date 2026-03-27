@@ -74,7 +74,8 @@ GO
 CREATE TABLE Photos (
     photoId INT IDENTITY(1, 1) PRIMARY KEY,
     userId INT FOREIGN KEY REFERENCES Profiles(userId),
-    [location] VARCHAR(200)
+    [location] VARCHAR(200),
+    profileOrderIndex INT
 );
 GO
 
@@ -114,15 +115,15 @@ GO
 -- Profiles (10 users)
 INSERT INTO Profiles (gender, location, nationality, maxDistance, age, minPrefAge, maxPrefAge, bio, displayStarSign, isArchived, dateOfBirth, loverType, isHotSeat, boost, boostDay, hotSeatDay)
 VALUES
-('Male',       'Cluj-Napoca',  'Romanian',  100, 28, 22, 35, 'Software engineer who loves hiking and coffee.',         1, NULL, '1996-03-15', 'Deep Thinker',          NULL, NULL, NULL, NULL),
-('Female',     'Bucuresti',    'Romanian',   50, 25, 23, 32, 'Artist and yoga instructor. Dog mom.',                   0, NULL, '1999-07-22', 'Social Explorer',        NULL, NULL, NULL, NULL),
-('Male',       'Timisoara',    'Romanian',  200, 31, 25, 38, 'Finance guy by day, amateur chef by night.',             1, NULL, '1993-11-05', 'Stability Lover',        NULL, NULL, NULL, NULL),
-('Female',     'Iasi',         'Romanian',   75, 27, 25, 34, 'Journalist. Lover of wine, books, and bad puns.',        1, NULL, '1997-04-18', 'Empathetic Connector',   NULL, NULL, NULL, NULL),
-('Male',       'Brasov',       'Romanian',  300, 33, 27, 40, 'Architect with a passion for travel and photography.',   0, NULL, '1991-09-30', 'Adventure Seeker',       NULL, NULL, NULL, NULL),
-('Female',     'Constanta',    'Romanian',  150, 29, 24, 36, 'Marine biology student. Swims every weekend.',           1, NULL, '1995-12-11', 'Adventure Seeker',       NULL, NULL, NULL, NULL),
-('Non-Binary', 'Sibiu',        'Romanian',  500, 26, 22, 33, 'Music producer. Coffee shop regular.',                   0, NULL, '1998-02-28', 'Social Explorer',        NULL, NULL, NULL, NULL),
-('Female',     'Oradea',       'Romanian',   80, 30, 26, 37, 'UX designer who loves art and hiking.',                  1,    1, '1994-06-03', 'Deep Thinker',           NULL, NULL, NULL, NULL),
-('Male',       'Craiova',      'Romanian',  250, 35, 28, 42, 'Chef and football fan. Looking for something real.',     0, NULL, '1989-08-19', 'Stability Lover',        NULL, NULL, NULL, NULL),
+('Male',       'Cluj-Napoca',  'Romanian',  100, 28, 22, 35, 'Software engineer who loves hiking and coffee.',         1, NULL, '1996-03-15', 'DEEP_THINKER',          NULL, NULL, NULL, NULL),
+('Female',     'Bucuresti',    'Romanian',   50, 25, 23, 32, 'Artist and yoga instructor. Dog mom.',                   0, NULL, '1999-07-22', 'SOCIAL_EXPLORER',        NULL, NULL, NULL, NULL),
+('Male',       'Timisoara',    'Romanian',  200, 31, 25, 38, 'Finance guy by day, amateur chef by night.',             1, NULL, '1993-11-05', 'STABILITY_LOVER',        NULL, NULL, NULL, NULL),
+('Female',     'Iasi',         'Romanian',   75, 27, 25, 34, 'Journalist. Lover of wine, books, and bad puns.',        1, NULL, '1997-04-18', 'EMPATHETIC_CONNECTOR',   NULL, NULL, NULL, NULL),
+('Male',       'Brasov',       'Romanian',  300, 33, 27, 40, 'Architect with a passion for travel and photography.',   0, NULL, '1991-09-30', 'ADVENTURE_SEEKER',       NULL, NULL, NULL, NULL),
+('Female',     'Constanta',    'Romanian',  150, 29, 24, 36, 'Marine biology student. Swims every weekend.',           1, NULL, '1995-12-11', 'ADVENTURE_SEEKER',       NULL, NULL, NULL, NULL),
+('Non-Binary', 'Sibiu',        'Romanian',  500, 26, 22, 33, 'Music producer. Coffee shop regular.',                   0, NULL, '1998-02-28', 'SOCIAL_EXPLORER',        NULL, NULL, NULL, NULL),
+('Female',     'Oradea',       'Romanian',   80, 30, 26, 37, 'UX designer who loves art and hiking.',                  1,    1, '1994-06-03', 'DEEP_THINKER',           NULL, NULL, NULL, NULL),
+('Male',       'Craiova',      'Romanian',  250, 35, 28, 42, 'Chef and football fan. Looking for something real.',     0, NULL, '1989-08-19', 'STABILITY_LOVER',        NULL, NULL, NULL, NULL),
 ('Other',      'Cluj-Napoca',  'Romanian',   60, 24, 18, 30, 'PhD student in literature. Pasta enthusiast.',           1, NULL, '2000-01-07', NULL,                     NULL, NULL, NULL, NULL);
 
 -- ProfileInterests
@@ -155,20 +156,20 @@ INSERT INTO ProfilePreferences (userId, gender) VALUES
 (10, 'NON_BINARY');
 
 -- Photos
-INSERT INTO Photos (userId, location) VALUES
-(1,  'https://cdn.matchmaking.app/photos/user1_photo1.jpg'),
-(1,  'https://cdn.matchmaking.app/photos/user1_photo2.jpg'),
-(2,  'https://cdn.matchmaking.app/photos/user2_photo1.jpg'),
-(3,  'https://cdn.matchmaking.app/photos/user3_photo1.jpg'),
-(3,  'https://cdn.matchmaking.app/photos/user3_photo2.jpg'),
-(4,  'https://cdn.matchmaking.app/photos/user4_photo1.jpg'),
-(5,  'https://cdn.matchmaking.app/photos/user5_photo1.jpg'),
-(6,  'https://cdn.matchmaking.app/photos/user6_photo1.jpg'),
-(6,  'https://cdn.matchmaking.app/photos/user6_photo2.jpg'),
-(7,  'https://cdn.matchmaking.app/photos/user7_photo1.jpg'),
-(8,  'https://cdn.matchmaking.app/photos/user8_photo1.jpg'),
-(9,  'https://cdn.matchmaking.app/photos/user9_photo1.jpg'),
-(10, 'https://cdn.matchmaking.app/photos/user10_photo1.jpg');
+INSERT INTO Photos (userId, location, profileOrderIndex) VALUES
+(1,  'https://cdn.matchmaking.app/photos/user1_photo1.jpg', 1),
+(1,  'https://cdn.matchmaking.app/photos/user1_photo2.jpg', 2),
+(2,  'https://cdn.matchmaking.app/photos/user2_photo1.jpg', 1),
+(3,  'https://cdn.matchmaking.app/photos/user3_photo1.jpg', 1),
+(3,  'https://cdn.matchmaking.app/photos/user3_photo2.jpg', 2),
+(4,  'https://cdn.matchmaking.app/photos/user4_photo1.jpg', 1),
+(5,  'https://cdn.matchmaking.app/photos/user5_photo1.jpg', 1),
+(6,  'https://cdn.matchmaking.app/photos/user6_photo1.jpg', 1),
+(6,  'https://cdn.matchmaking.app/photos/user6_photo2.jpg', 2),
+(7,  'https://cdn.matchmaking.app/photos/user7_photo1.jpg', 1),
+(8,  'https://cdn.matchmaking.app/photos/user8_photo1.jpg', 1),
+(9,  'https://cdn.matchmaking.app/photos/user9_photo1.jpg', 1),
+(10, 'https://cdn.matchmaking.app/photos/user10_photo1.jpg', 1);
 
 INSERT INTO Interactions (fromProfileId, toProfileId, [type]) VALUES
 (1,  2,  'LIKE'),
