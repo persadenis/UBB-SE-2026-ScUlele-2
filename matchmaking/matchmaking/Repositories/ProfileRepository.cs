@@ -11,7 +11,6 @@ namespace matchmaking.Repositories
     internal class ProfileRepository
     {
         private readonly string _connectionString;
-        private List<DatingProfile> Profiles;
 
         public ProfileRepository(string connectionString)
         {
@@ -103,7 +102,7 @@ namespace matchmaking.Repositories
             const string query = @"
                 DELETE FROM Profiles
                 OUTPUT DELETED.userId, DELETED.name, DELETED.gender, DELETED.location, DELETED.nationality,DELETED.maxDistance, DELETED.age, DELETED.minPrefAge, DELETED.maxPrefAge,
-                ELETED.bio, DELETED.displayStarSign, DELETED.isArchived, DELETED.dateOfBirth,DELETED.loverType, DELETED.isHotSeat, DELETED.boost, DELETED.boostDay, DELETED.hotSeatDay
+                DELETED.bio, DELETED.displayStarSign, DELETED.isArchived, DELETED.dateOfBirth,DELETED.loverType, DELETED.isHotSeat, DELETED.boost, DELETED.boostDay, DELETED.hotSeatDay
                 WHERE userId = @userId;";
 
             using SqlConnection connection = new SqlConnection(_connectionString);
