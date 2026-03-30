@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using matchmaking.Domain;
+﻿using matchmaking.Domain;
 using matchmaking.Services;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 
 namespace matchmaking.ViewModels
 {
@@ -12,16 +13,16 @@ namespace matchmaking.ViewModels
     {
         private readonly int _userid;
         private readonly NotificationService _notificationService;
-        private List<Notification> _notifications;
+        private ObservableCollection<Notification> _notifications;
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public NotificationsViewModel(int id, NotificationService notificationService)
         {
             _userid = id;
             _notificationService = notificationService;
-            _notifications = new List<Notification>();
+            _notifications = new ObservableCollection<Notification>();
         }
-        public List<Notification> Notifications
+        public ObservableCollection<Notification> Notifications
         {
             get => _notifications;
             set
@@ -32,8 +33,12 @@ namespace matchmaking.ViewModels
         }
         public void LoadNotifications()
         {
-            Notifications = _notificationService.FindByRecipientId(_userid).OrderByDescending(n => n.CreatedAt).ToList();
-
+            var list = _notificationService.FindByRecipientId(_userid).OrderByDescending(n => n.CreatedAt).ToList();
+            _notifications.Clear();
+            foreach (Notification n in list)
+            {
+                _notifications.Add(n);
+            }
         }
         public void MarkAsRead(int notificationId)
         {
