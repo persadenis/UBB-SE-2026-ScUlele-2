@@ -22,6 +22,8 @@ namespace matchmaking.Views
     public sealed partial class EditProfileView : Page
     {
         internal EditProfileViewModel? ViewModel { get; private set; }
+        private bool _isRenderingPhotos = false;
+
         public EditProfileView()
         {
             InitializeComponent();
@@ -32,63 +34,74 @@ namespace matchmaking.Views
             ViewModel = e.Parameter as EditProfileViewModel;
             this.DataContext = ViewModel;
 
+            PhotosListView.Items.VectorChanged -= PhotoItems_VectorChanged;
             PhotosListView.Items.VectorChanged += PhotoItems_VectorChanged;
+
+            BioBox.TextChanged -= BioBox_TextChanged;
             BioBox.TextChanged += BioBox_TextChanged;
+
+            BioBox.BeforeTextChanging -= BioBox_BeforeTextChanging;
             BioBox.BeforeTextChanging += BioBox_BeforeTextChanging;
 
+            DistanceSlider.ValueChanged -= DistanceSlider_ValueChanged;
+            DistanceSlider.ValueChanged += DistanceSlider_ValueChanged;
+
+            RefreshAllUI();
+        }
+
+        private Grid CreatePhotoSlot(Photo photo)
+        {
+            Grid slot = new Grid() { Width = 120, Height = 120, Margin = new Thickness(0, 0, 8, 0), Tag = photo.PhotoId };
+            Image img = new Image() { Width = 120, Height = 120, Stretch = Stretch.UniformToFill, Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri("file:///" + photo.Location.Replace("\\", "/"))) };
+            Button deleteBtn = CreateDeletePhotoButton(photo.PhotoId);
+            slot.Children.Add(img);
+            slot.Children.Add(deleteBtn);
+            return slot;
+        }
+
+        private Button CreateDeletePhotoButton(int photoId)
+        {
+            Button deleteBtn = new Button()
+            {
+                Content = "✕",
+                Width = 28,
+                Height = 28,
+                Padding = new Thickness(0),
+                CornerRadius = new CornerRadius(14),
+                Background = new SolidColorBrush(Microsoft.UI.Colors.Red),
+                Foreground = new SolidColorBrush(Microsoft.UI.Colors.White),
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, -8, -8, 0),
+                IsEnabled = ViewModel.CanRemovePhoto(),
+                CanDrag = false,
+                AllowDrop = false
+            };
+            deleteBtn.Click += (s, e) => { if (ViewModel.CanRemovePhoto()) { ViewModel.RemovePhoto(photoId); RenderPhotos(); } };
+            return deleteBtn;
+        }
+
+        private void RefreshAllUI()
+        {
             RenderPhotos();
             RenderInterests();
             RenderPreferredGenders();
             UpdateInterestsHeader();
             UpdateBioHeader();
+            UpdateDistanceHeader();
             UpdateArchivedBanner();
-            UpdateQuestionnaireButton(); 
+            UpdateQuestionnaireButton();
         }
-
         private void RenderPhotos()
         {
+            _isRenderingPhotos = true;
+
             PhotosListView.Items.Clear();
 
             foreach (Photo photo in ViewModel.Photos)
             {
-                Grid slot = new Grid();
-                slot.Width = 120;
-                slot.Height = 120;
-                slot.Margin = new Thickness(0, 0, 8, 0);
-                slot.Tag = photo.PhotoId;
+                Grid slot = CreatePhotoSlot(photo);
 
-                Image img = new Image();
-                img.Width = 120;
-                img.Height = 120;
-                img.Stretch = Microsoft.UI.Xaml.Media.Stretch.UniformToFill;
-                string location = photo.Location;
-                img.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
-                    new Uri("file:///" + photo.Location.Replace("\\", "/")));
-                Button deleteBtn = new Button();
-                deleteBtn.Content = "✕";
-                deleteBtn.Width = 28;
-                deleteBtn.Height = 28;
-                deleteBtn.Padding = new Thickness(0);
-                deleteBtn.CornerRadius = new CornerRadius(14);
-                deleteBtn.Background = new SolidColorBrush(Microsoft.UI.Colors.Red);
-                deleteBtn.Foreground = new SolidColorBrush(Microsoft.UI.Colors.White);
-                deleteBtn.HorizontalAlignment = HorizontalAlignment.Right;
-                deleteBtn.VerticalAlignment = VerticalAlignment.Top;
-                deleteBtn.Margin = new Thickness(0, -8, -8, 0);
-                deleteBtn.IsEnabled = ViewModel.CanRemovePhoto();
-
-                int photoId = photo.PhotoId;
-                deleteBtn.Click += (s, e) =>
-                {
-                    if (ViewModel.CanRemovePhoto())
-                    {
-                        ViewModel.RemovePhoto(photoId);
-                        RenderPhotos();
-                    }
-                };
-
-                slot.Children.Add(img);
-                slot.Children.Add(deleteBtn);
                 PhotosListView.Items.Add(slot);
             }
 
@@ -115,7 +128,10 @@ namespace matchmaking.Views
                 PhotosListView.Items.Add(addSlot);
             }
 
-            int emptySlots = 6 - ViewModel.Photos.Count - 1;
+            int emptySlots = ViewModel.Photos.Count < 6
+                ? 6 - ViewModel.Photos.Count - 1
+                : 0;
+
             for (int i = 0; i < emptySlots; i++)
             {
                 Border emptySlot = new Border();
@@ -128,12 +144,14 @@ namespace matchmaking.Views
                 PhotosListView.Items.Add(emptySlot);
             }
 
+            _isRenderingPhotos = false;
         }
 
-        private void PhotoItems_VectorChanged(
-            Windows.Foundation.Collections.IObservableVector<object> sender,
-            Windows.Foundation.Collections.IVectorChangedEventArgs e)
+        private void PhotoItems_VectorChanged(Windows.Foundation.Collections.IObservableVector<object> sender,Windows.Foundation.Collections.IVectorChangedEventArgs e)
         {
+            if (_isRenderingPhotos || ViewModel == null)
+                return;
+
             List<int> newOrder = PhotosListView.Items
                 .OfType<Grid>()
                 .Where(g => g.Tag is int)
@@ -172,6 +190,7 @@ namespace matchmaking.Views
             PreferredGendersPanel.Children.Clear();
             Gender[] genderValues = { Gender.MALE, Gender.FEMALE, Gender.NON_BINARY, Gender.OTHER };
             List<string> genders = ViewModel.GenderOptions;
+
             for (int i = 0; i < genders.Count; i++)
             {
                 Gender g = genderValues[i];
@@ -179,19 +198,9 @@ namespace matchmaking.Views
 
                 Button btn = new Button();
                 btn.Content = genders[i];
-                btn.CornerRadius = new CornerRadius(20);
-                btn.Padding = new Thickness(16, 8, 16, 8);
-
-                if (isSelected)
-                {
-                    btn.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Black);
-                    btn.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White);
-                }
-                else
-                {
-                    btn.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
-                    btn.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Black);
-                }
+                btn.Style = isSelected 
+                    ? (Style)Resources["SelectedInterestButtonStyle"]
+                    : (Style)Resources["UnselectedInterestButtonStyle"];
 
                 btn.Click += (s, e) =>
                 {
@@ -208,40 +217,43 @@ namespace matchmaking.Views
 
         private void RenderInterests()
         {
+            if (ViewModel == null) return;
+
             InterestsPanel.Children.Clear();
 
             foreach (string interest in ViewModel.AllInterests)
             {
-                bool isSelected = ViewModel.Interests.Contains(interest);
+                bool isSelected = ViewModel.Interests
+                    .Any(i => i.Trim().Equals(interest.Trim(), StringComparison.OrdinalIgnoreCase));
 
                 Button btn = new Button();
                 btn.Content = interest;
-                btn.CornerRadius = new CornerRadius(20);
-                btn.Padding = new Thickness(16, 8, 16, 8);
-                btn.Margin = new Thickness(0, 0, 8, 8);
+                btn.IsEnabled = !isSelected || ViewModel.CanRemoveInterest(interest);
+                btn.Style = isSelected 
+                    ? (Style)Resources["SelectedInterestButtonStyle"]
+                    : (Style)Resources["UnselectedInterestButtonStyle"];
 
-                if (isSelected)
-                {
-                    btn.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Black);
-                    btn.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White);
-                    btn.IsEnabled = ViewModel.CanRemoveInterest();
-                }
-                else
-                {
-                    btn.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
-                    btn.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Black);
-                    btn.IsEnabled = ViewModel.CanAddInterest();
-                }
-
+                string interestCopy = interest;
+                bool wasSelected = isSelected;
                 btn.Click += (s, e) =>
                 {
-                    if (isSelected && ViewModel.CanRemoveInterest(interest))
-                        ViewModel.RemoveInterest(interest);
-                    else if (!isSelected && ViewModel.CanAddInterest())
-                        ViewModel.AddInterest(interest);
+                    string? existingInterest = ViewModel.Interests
+                        .FirstOrDefault(i => i.Trim().Equals(interestCopy.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                    if (wasSelected && existingInterest != null && ViewModel.CanRemoveInterest(existingInterest))
+                    {
+                        ViewModel.RemoveInterest(existingInterest);
+                        btn.Style = (Style)Resources["UnselectedInterestButtonStyle"];
+                        btn.IsEnabled = true;
+                    }
+                    else if (!wasSelected && ViewModel.CanAddInterest())
+                    {
+                        ViewModel.AddInterest(interestCopy);
+                        btn.Style = (Style)Resources["SelectedInterestButtonStyle"];
+                        btn.IsEnabled = ViewModel.CanRemoveInterest(interestCopy);
+                    }
 
                     UpdateInterestsHeader();
-                    RenderInterests();
                 };
 
                 InterestsPanel.Children.Add(btn);
@@ -255,6 +267,19 @@ namespace matchmaking.Views
         private void UpdateBioHeader()
         {
             BioHeader.Text = $"Bio ({BioBox.Text.Length}/250)";
+        }
+
+        private void UpdateDistanceHeader()
+        {
+            if (ViewModel != null)
+            {
+                DistanceHeader.Text = $"Maximum Distance ({ViewModel.MaxDistance} km)";
+            }
+        }
+
+        private void DistanceSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            UpdateDistanceHeader();
         }
 
         private void BioBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
@@ -301,11 +326,7 @@ namespace matchmaking.Views
             if (result == ContentDialogResult.Primary)
             {
                 ViewModel.DiscardChanges();
-                RenderPhotos();
-                RenderInterests();
-                RenderPreferredGenders();
-                UpdateInterestsHeader();
-                UpdateBioHeader();
+                RefreshAllUI();
             }
         }
 
@@ -349,11 +370,14 @@ namespace matchmaking.Views
             ViewModel!.PrepareQuestionnaire();
             Frame.Navigate(typeof(QuestionnaireView), ViewModel);
         }
+
         private void UpdateQuestionnaireButton()
         {
             QuestionnaireButton.Visibility = ViewModel.HasLoverType
                 ? Visibility.Collapsed
                 : Visibility.Visible;
         }
+
+        
     }
 }

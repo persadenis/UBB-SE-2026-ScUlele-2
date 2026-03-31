@@ -260,7 +260,7 @@ namespace matchmaking.Repositories
         public DatingProfile? Update(DatingProfile profile)
         {   
             DatingProfile? existing = FindById(profile.UserId);
-            if (existing != null) return null;
+            if (existing == null) return null;
 
 
             const string query = @"
