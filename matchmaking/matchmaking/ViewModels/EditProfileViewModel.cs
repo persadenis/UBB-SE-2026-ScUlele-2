@@ -37,10 +37,11 @@ namespace matchmaking.ViewModels
         private ObservableCollection<Photo> _photos = new();
         private ObservableCollection<string> _interests = new();
 
-        private string _errorMessage = string.Empty;
-
         private ObservableCollection<string> _shuffledQuestions = new();
         private ObservableCollection<int> _answers = new();
+
+        private int _currentInterestCount = 0;
+        private int _currentPhotoCount = 0;
 
         public string Bio
         {
@@ -155,14 +156,17 @@ namespace matchmaking.ViewModels
 
         public List<string> AllInterests => _interestUtil.GetAll();
 
-        public string ErrorMessage
+        public bool HasLoverType => LoverType != null;
+
+        public int CurrentInterestCount
         {
-            get => _errorMessage;
-            private set { if (_errorMessage != value) { _errorMessage = value; OnPropertyChanged(nameof(ErrorMessage)); } }
+            get => _interests.Count;
         }
 
-
-        public bool HasLoverType => LoverType != null;
+        public int CurrentPhotoCount
+        {
+            get => _photos.Count;
+        }
 
 
         public string LoverTypeResultText => LoverType switch
@@ -235,20 +239,11 @@ namespace matchmaking.ViewModels
         {
             DatingProfile profile = _profileService.GetProfileById(_userId);
             PopulateFromProfile(profile);
-            ErrorMessage = string.Empty;
         }
 
         public void SaveChanges()
         {
-            try
-            {
-                _profileService.UpdateProfile(_userId, BuildProfileData());
-                ErrorMessage = string.Empty;
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-            }
+            _profileService.UpdateProfile(_userId, BuildProfileData());
         }
 
         public void DiscardChanges()
@@ -278,98 +273,60 @@ namespace matchmaking.ViewModels
 
         public void AddPhoto(Photo photo)
         {
-            try
-            {
-                _photoService.AddPhoto(photo);
-                _photos.Add(photo);
-                OnPropertyChanged(nameof(Photos));
-                ErrorMessage = string.Empty;
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-            }
+            _photoService.AddPhoto(photo);
+            _photos.Add(photo);
+            OnPropertyChanged(nameof(Photos));
+            OnPropertyChanged(nameof(CurrentPhotoCount));
         }
 
         public void RemovePhoto(int photoId)
         {
-            try
-            {
-                if (_photos.Count <= 2)
-                    throw new Exception("You must have at least 2 photos!");
+            if (_photos.Count <= 2)
+                return;
 
-                _photoService.DeleteById(photoId);
-                Photo? toRemove = _photos.FirstOrDefault(p => p.PhotoId == photoId);
-                if (toRemove != null) _photos.Remove(toRemove);
-                OnPropertyChanged(nameof(Photos));
-                ErrorMessage = string.Empty;
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-            }
+            _photoService.DeleteById(photoId);
+            Photo? toRemove = _photos.FirstOrDefault(p => p.PhotoId == photoId);
+            if (toRemove != null) _photos.Remove(toRemove);
+            OnPropertyChanged(nameof(Photos));
+            OnPropertyChanged(nameof(CurrentPhotoCount));
         }
 
         public bool CanRemovePhoto() => _photos.Count > 2;
 
         public void ReorderPhotos(List<int> newPhotoIdOrder)
         {
-            try
+            _photoService.ReorderPhotos(_userId, newPhotoIdOrder);
+            var reorderedPhotos = newPhotoIdOrder
+                .Select(id => _photos.FirstOrDefault(p => p.PhotoId == id))
+                .Where(p => p != null)
+                .ToList()!;
+            _photos.Clear();
+            foreach (var photo in reorderedPhotos)
             {
-                _photoService.ReorderPhotos(_userId, newPhotoIdOrder);
-                var reorderedPhotos = newPhotoIdOrder
-                    .Select(id => _photos.FirstOrDefault(p => p.PhotoId == id))
-                    .Where(p => p != null)
-                    .ToList()!;
-                _photos.Clear();
-                foreach (var photo in reorderedPhotos)
-                {
-                    _photos.Add(photo);
-                }
-                OnPropertyChanged(nameof(Photos));
-                ErrorMessage = string.Empty;
+                _photos.Add(photo);
             }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-            }
+            OnPropertyChanged(nameof(Photos));
+            OnPropertyChanged(nameof(CurrentPhotoCount));
         }
 
         public void AddInterest(string interest)
         {
-            try
-            {
-                if (_interests.Count >= 15)
-                    throw new Exception("You cannot have more than 15 interests!");
+            if (_interests.Count >= 15 || _interests.Contains(interest))
+                return;
 
-                if (_interests.Contains(interest))
-                    throw new Exception("This interest is already added!");
-
-                _interests.Add(interest);
-                OnPropertyChanged(nameof(Interests));
-                ErrorMessage = string.Empty;
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-            }
+            _interests.Add(interest);
+            OnPropertyChanged(nameof(Interests));
+            OnPropertyChanged(nameof(CurrentInterestCount));
         }
 
         public void RemoveInterest(string interest)
         {
-            try
-            {
-                if (_interests.Count <= 3)
-                    throw new Exception("You must have at least 3 interests!");
+            if (_interests.Count <= 3)
+                return;
 
-                _interests.Remove(interest);
-                OnPropertyChanged(nameof(Interests));
-                ErrorMessage = string.Empty;
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-            }
+            _interests.Remove(interest);
+            OnPropertyChanged(nameof(Interests));
+            OnPropertyChanged(nameof(CurrentInterestCount));
         }
 
         public bool CanAddInterest() => _interests.Count < 15;
@@ -410,17 +367,13 @@ namespace matchmaking.ViewModels
         public void SubmitQuestionnaire()
         {
             if (!CanSubmitQuestionnaire())
-            {
-                ErrorMessage = "Please answer all questions before submitting.";
                 return;
-            }
 
             LoverType = _questionaireUtil.CalculateLoveType(_answers.ToList());
             _profileService.UpdateProfile(_userId, BuildProfileData());
 
             ShuffledQuestions = new List<string>();
             Answers = new List<int>();
-            ErrorMessage = string.Empty;
 
             OnPropertyChanged(nameof(LoverType));
             OnPropertyChanged(nameof(LoverTypeResultText));
