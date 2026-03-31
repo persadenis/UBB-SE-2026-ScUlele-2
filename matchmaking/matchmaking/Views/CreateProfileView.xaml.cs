@@ -7,8 +7,10 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+
 namespace matchmaking.Views
 {
     internal sealed partial class CreateProfileView : Page
@@ -27,8 +29,8 @@ namespace matchmaking.Views
             {
                 ViewModel = viewModel;
                 ViewModel.LoadUserData(ViewModel.UserId);
-                UsernameText.Text = viewModel.ProfileData != null ? GetUsername() : "";
-                AgeText.Text = viewModel.ProfileData != null ? GetAge().ToString() : "";
+                UsernameText.Text = GetUsername();
+                AgeText.Text = GetAge().ToString();
                 LoadLocations();
                 LoadInterests();
                 UpdatePhotoSlots();
@@ -238,7 +240,6 @@ namespace matchmaking.Views
                 0 => Gender.MALE,
                 1 => Gender.FEMALE,
                 2 => Gender.NON_BINARY,
-                3 => Gender.OTHER,
                 _ => Gender.OTHER
             };
             UpdateNextButton();
@@ -361,19 +362,36 @@ namespace matchmaking.Views
             for (int i = 0; i < slots.Length; i++)
             {
                 slots[i].Child = null;
+                slots[i].AllowDrop = true;
+                slots[i].Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                slots[i].DragOver -= HandleSlotDragOver;
+                slots[i].Drop -= HandleSlotDrop;
+                slots[i].DragOver += HandleSlotDragOver;
+                slots[i].Drop += HandleSlotDrop;
 
                 if (i < photos.Count)
                 {
                     var grid = new Grid();
+                    var dragGrid = new Grid();
+                    dragGrid.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                    dragGrid.CanDrag = true;
+                    int slotIndex = i;
+                    dragGrid.DragStarting += (s, args) =>
+                    {
+                        args.Data.SetText(slotIndex.ToString());
+                        args.Data.RequestedOperation = DataPackageOperation.Move;
+                    };
+
                     var img = new Image
                     {
                         Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(photos[i].Location!)),
                         Stretch = Microsoft.UI.Xaml.Media.Stretch.UniformToFill
                     };
+                    dragGrid.Children.Add(img);
 
                     var removeBtn = new Button
                     {
-                        Content = new FontIcon { Glyph = "\uE711", FontSize = 16 },
+                        Content = new FontIcon { Glyph = "\uE894", FontSize = 16 },
                         Tag = photos[i].PhotoId,
                         HorizontalAlignment = HorizontalAlignment.Right,
                         VerticalAlignment = VerticalAlignment.Top,
@@ -387,7 +405,7 @@ namespace matchmaking.Views
                         IsEnabled = canRemove
                     };
                     removeBtn.Click += HandleRemovePhotoClick;
-                    grid.Children.Add(img);
+                    grid.Children.Add(dragGrid);
                     grid.Children.Add(removeBtn);
                     slots[i].Child = grid;
                 }
@@ -414,6 +432,26 @@ namespace matchmaking.Views
                     addBtn.Click += HandleAddPhotoClick;
                     slots[i].Child = addBtn;
                 }
+            }
+        }
+
+        private void HandleSlotDragOver(object sender, DragEventArgs e)
+        {
+            e.AcceptedOperation = DataPackageOperation.Move;
+        }
+
+        private void HandleSlotDrop(object sender, DragEventArgs e)
+        {
+            int targetSlot = Array.IndexOf(new[] { PhotoSlot0, PhotoSlot1, PhotoSlot2, PhotoSlot3, PhotoSlot4, PhotoSlot5 }, sender as Border);
+            string? sourceText = e.DataView.GetTextAsync().GetAwaiter().GetResult();
+            if (string.IsNullOrEmpty(sourceText) || !int.TryParse(sourceText, out int sourceSlot))
+                return;
+
+            if (sourceSlot != targetSlot && sourceSlot >= 0 && targetSlot >= 0 &&
+                sourceSlot < ViewModel!.ProfileData!.Photos.Count && targetSlot < ViewModel.ProfileData.Photos.Count)
+            {
+                ViewModel.SwapPhotos(sourceSlot, targetSlot);
+                UpdatePhotoSlots();
             }
         }
 

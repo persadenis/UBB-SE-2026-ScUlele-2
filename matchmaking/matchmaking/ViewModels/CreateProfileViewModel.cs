@@ -169,6 +169,23 @@ namespace matchmaking.ViewModels
             OnPropertyChanged(nameof(ProfileData));
         }
 
+        public void SwapPhotos(int fromIndex, int toIndex)
+        {
+            if (fromIndex < 0 || fromIndex >= _profileData.Photos.Count ||
+                toIndex < 0 || toIndex >= _profileData.Photos.Count)
+            {
+                return;
+            }
+            var temp = _profileData.Photos[fromIndex];
+            _profileData.Photos[fromIndex] = _profileData.Photos[toIndex];
+            _profileData.Photos[toIndex] = temp;
+            for (int i = 0; i < _profileData.Photos.Count; i++)
+            {
+                _profileData.Photos[i].ProfileOrderIndex = i;
+            }
+            OnPropertyChanged(nameof(ProfileData));
+        }
+
         public void AddInterest(string interest)
         {
             if (_profileData.Interests.Count >= 15)
