@@ -27,7 +27,7 @@ namespace matchmaking.Services
 
         private void CopyPhotosToStorage(List<Photo> photos)
         {
-            var allowedExtensions = new[] { ".jpeg", ".jpg", ".png" };
+            string[] allowedExtensions = new string[] { ".jpeg", ".jpg", ".png" };
             const long maxFileSize = 10 * 1024 * 1024;
             string storageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StoredPhotos");
             Directory.CreateDirectory(storageDirectory);
@@ -37,13 +37,13 @@ namespace matchmaking.Services
                 string extension = Path.GetExtension(photos[i].Location).ToLower();
                 if (!allowedExtensions.Contains(extension))
                 {
-                    throw new Exception("Only JPEG and PNG files are allowed!");
+                    throw new InvalidOperationException("Only JPEG and PNG files are allowed!");
                 }
 
                 long fileSize = new FileInfo(photos[i].Location).Length;
                 if (fileSize > maxFileSize)
                 {
-                    throw new Exception("The file is too large! Maximum size is 10MB.");
+                    throw new InvalidOperationException("The file is too large! Maximum size is 10MB.");
                 }
 
                 string fileName = Guid.NewGuid().ToString() + extension;
