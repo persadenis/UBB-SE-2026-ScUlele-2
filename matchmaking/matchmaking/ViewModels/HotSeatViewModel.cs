@@ -21,9 +21,14 @@ namespace matchmaking.ViewModels
         private int _currentPhotoIndex;
 
         public string HighestBidDisplay => HighestBid.ToString();
+        public string NameDisplay => HotSeatProfile?.Name ?? string.Empty;
         public string AgeDisplay => HotSeatProfile?.Age.ToString() ?? string.Empty;
         public string GenderDisplay => HotSeatProfile?.Gender.ToString() ?? string.Empty;
+        public string LocationDisplay => HotSeatProfile?.Location ?? string.Empty;
+        public string NationalityDisplay => HotSeatProfile?.Nationality ?? string.Empty;
+        public string BioDisplay => HotSeatProfile?.Bio ?? string.Empty;
         public string LoverTypeDisplay => HotSeatProfile?.LoverType?.ToString() ?? string.Empty;
+        public List<string> InterestsDisplay => HotSeatProfile?.Interests ?? new List<string>();
 
         public string? StarSignDisplay =>
             HotSeatProfile != null && HotSeatProfile.DisplayStarSign
@@ -36,10 +41,11 @@ namespace matchmaking.ViewModels
             : null;
 
         public bool ShowInteractionButtons =>
-            HotSeatProfile != null && _userId != _hotSeatProfile.UserId;
+            HotSeatProfile != null && _userId != _hotSeatProfile?.UserId;
 
         public bool ShowStarSign => HotSeatProfile != null && HotSeatProfile.DisplayStarSign;
         public bool HasHotSeatProfile => HotSeatProfile != null;
+        public bool NoHotSeatProfile => HotSeatProfile == null;
         public bool HasNoBid => HighestBid == 0;
         public bool HasBid => HighestBid > 0;
         public bool HasErrorMessage => !string.IsNullOrEmpty(ErrorMessage);
@@ -53,11 +59,17 @@ namespace matchmaking.ViewModels
                 OnPropertyChanged(nameof(ShowInteractionButtons));
                 OnPropertyChanged(nameof(CurrentPhoto));
                 OnPropertyChanged(nameof(HasHotSeatProfile));
+                OnPropertyChanged(nameof(NoHotSeatProfile));
+                OnPropertyChanged(nameof(NameDisplay));
+                OnPropertyChanged(nameof(AgeDisplay));
+                OnPropertyChanged(nameof(GenderDisplay));
+                OnPropertyChanged(nameof(LocationDisplay));
+                OnPropertyChanged(nameof(NationalityDisplay));
+                OnPropertyChanged(nameof(BioDisplay));
+                OnPropertyChanged(nameof(InterestsDisplay));
                 OnPropertyChanged(nameof(StarSignDisplay));
                 OnPropertyChanged(nameof(ShowStarSign));
-                OnPropertyChanged(nameof(GenderDisplay));
                 OnPropertyChanged(nameof(LoverTypeDisplay));
-                OnPropertyChanged(nameof(AgeDisplay));
             }
         }
 

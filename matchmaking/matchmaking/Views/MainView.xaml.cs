@@ -57,11 +57,7 @@ namespace matchmaking.Views
                     break;
 
                 case "HotSeat":
-                    ContentFrame.Navigate(typeof(HotSeatView));
-                    if (ContentFrame.Content is HotSeatView hotSeatView)
-                    {
-                        hotSeatView.SetViewModel(ViewModel.HotSeatViewModel);
-                    }
+                    ContentFrame.Navigate(typeof(HotSeatView), ViewModel.HotSeatViewModel);
                     break;
 
                 case "EditProfile":
