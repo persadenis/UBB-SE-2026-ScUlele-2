@@ -1,8 +1,10 @@
 using matchmaking.Domain;
 using matchmaking.ViewModels;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.ComponentModel;
 
 namespace matchmaking.Views
 {
@@ -20,6 +22,7 @@ namespace matchmaking.Views
         {
             ViewModel = viewModel;
             _createProfileViewModel = createProfileViewModel;
+            ViewModel.PropertyChanged += OnViewModelPropertyChanged;
             StartSplashTimer();
         }
 
@@ -32,9 +35,17 @@ namespace matchmaking.Views
             timer.Tick += (s, e) =>
             {
                 timer.Stop();
-                NavigateTo(ViewModel!.DecideNextScreen());
+                ViewModel!.NavigateCommand.Execute(null);
             };
             timer.Start();
+        }
+
+        private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewModel.NextScreen))
+            {
+                NavigateTo(ViewModel!.NextScreen);
+            }
         }
 
         private void NavigateTo(Screen screen)
@@ -52,6 +63,9 @@ namespace matchmaking.Views
                     break;
                 case Screen.CREATE:
                     Frame.Navigate(typeof(CreateProfileView), _createProfileViewModel);
+                    break;
+                case Screen.ADMIN:
+                    Frame.Navigate(typeof(AdminView));
                     break;
                 case Screen.DISCOVER:
                 default:
