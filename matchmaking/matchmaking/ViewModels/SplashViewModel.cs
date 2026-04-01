@@ -28,6 +28,8 @@ namespace matchmaking.ViewModels
             _datingAdminService = datingAdminService;
         }
 
+        public int UserId => _userId;
+
         public bool IsUserAdult()
         {
             UserData userData = _mockUserUtil.GetUserData(_userId);
