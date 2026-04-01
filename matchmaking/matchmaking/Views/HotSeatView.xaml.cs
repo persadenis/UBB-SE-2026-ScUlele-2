@@ -14,6 +14,15 @@ namespace matchmaking.Views
             InitializeComponent();
         }
 
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            if (e.Parameter is HotSeatViewModel viewModel)
+            {
+                SetViewModel(viewModel);
+            }
+        }
+
         public void SetViewModel(HotSeatViewModel viewModel)
         {
             ViewModel = viewModel;
@@ -21,14 +30,11 @@ namespace matchmaking.Views
             ViewModel.LoadHotSeat();
         }
 
-        public Visibility Vis (bool condition)
-        => condition ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility Vis(bool condition)
+            => condition ? Visibility.Visible : Visibility.Collapsed;
 
         public Visibility VisInverse(bool condition)
             => condition ? Visibility.Collapsed : Visibility.Visible;
-
-        //private void PlaceBid_Click(object sender, RoutedEventArgs e)
-        //    => ViewModel?.PlaceBid();
 
         private void PlaceBid_Click(object sender, RoutedEventArgs e)
         {
