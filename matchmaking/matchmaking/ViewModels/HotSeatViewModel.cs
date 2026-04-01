@@ -18,8 +18,8 @@ namespace matchmaking.ViewModels
         private int _userId;
         private DatingProfile _hotSeatProfile;
         private int _highestBid;
-        private string _errorMessage;
-        private int _bidInput;
+        private string _errorMessage=string.Empty;
+        private double _bidInput;
         private int _currentPhotoIndex;
 
 
