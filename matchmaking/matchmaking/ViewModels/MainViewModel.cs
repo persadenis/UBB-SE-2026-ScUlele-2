@@ -92,8 +92,8 @@ namespace matchmaking.ViewModels
             var registerInteraction = new RegisterInteractionUseCase(interactionService, matchService, _notificationService, profileRepo);
 
             DiscoverViewModel = new DiscoverViewModel(userId, discoverService, registerInteraction, firstLoad);
-            NotificationsViewModel = new NotificationsViewModel(userId, _notificationService);
-            HotSeatViewModel = new HotSeatViewModel(userId, profileService, bidService, registerInteraction);
+            NotificationsViewModel = new NotificationsViewModel(userId, notificationService);
+            HotSeatViewModel = new HotSeatViewModel(userId, profileService, bidService, registerInteraction,interactionService);
             EditProfileViewModel = new EditProfileViewModel(userId, profileService, photoService, questionaireUtil, interestUtil);
         }
 
