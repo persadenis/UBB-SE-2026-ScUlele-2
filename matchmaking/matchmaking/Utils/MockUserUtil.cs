@@ -72,7 +72,9 @@ namespace matchmaking.Utils
             new UserData(57, "gabriel_o", "gabriel.o@example.com", "+40721000057", "https://example.com/avatars/57.jpg", "Architect and chess player.", new DateTime(1995, 2, 7)),
             new UserData(58, "henrieta_p", "henrieta.p@example.com", "+40721000058", "https://example.com/avatars/58.jpg", "Loves pottery and hiking.", new DateTime(1998, 7, 1)),
             new UserData(59, "iulian_r", "iulian.r@example.com", "+40721000059", "https://example.com/avatars/59.jpg", "Gamer and anime fan.", new DateTime(2001, 12, 23)),
-            new UserData(60, "janine_s", "janine.s@example.com", "+40721000060", "https://example.com/avatars/60.jpg", "Chef and food critic.", new DateTime(1994, 5, 16)),
+
+            new UserData(60, "janine_s", "janine.s@example.com", "+40721000060", "https://example.com/avatars/60.jpg","i like computers", new DateTime(2010, 5, 16)),
+
             new UserData(61, "kristian_t", "kristian.t@example.com", "+40721000061", "https://example.com/avatars/61.jpg", "Loves skiing and jazz.", new DateTime(1990, 10, 8)),
             new UserData(62, "larisa_u", "larisa.u@example.com", "+40721000062", "https://example.com/avatars/62.jpg", "Dancer and event planner.", new DateTime(1996, 3, 31)),
             new UserData(63, "marius_v", "marius.v@example.com", "+40721000063", "https://example.com/avatars/63.jpg", "Football coach.", new DateTime(1993, 8, 24)),
