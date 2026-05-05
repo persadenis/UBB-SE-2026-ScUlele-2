@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>matchmaking.UnitTests</AssemblyName>
+    <RootNamespace>matchmaking.Tests</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\matchmaking\interests.csv" Link="interests.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\matchmaking\locations.csv" Link="locations.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\matchmaking\Domain\DatingProfile.cs" Link="AppSource\Domain\DatingProfile.cs" />
+    <Compile Include="..\..\matchmaking\Domain\Notification.cs" Link="AppSource\Domain\Notification.cs" />
+    <Compile Include="..\..\matchmaking\Domain\Photo.cs" Link="AppSource\Domain\Photo.cs" />
+    <Compile Include="..\..\matchmaking\Utils\CompatibilityUtil.cs" Link="AppSource\Utils\CompatibilityUtil.cs" />
+    <Compile Include="..\..\matchmaking\Utils\InterestUtil.cs" Link="AppSource\Utils\InterestUtil.cs" />
+    <Compile Include="..\..\matchmaking\Utils\LocationUtil.cs" Link="AppSource\Utils\LocationUtil.cs" />
+    <Compile Include="..\..\matchmaking\Utils\MockCommunityUtil.cs" Link="AppSource\Utils\MockCommunityUtil.cs" />
+    <Compile Include="..\..\matchmaking\Utils\QuestionaireUtil.cs" Link="AppSource\Utils\QuestionaireUtil.cs" />
+    <Compile Include="..\..\matchmaking\ViewModels\ObservableObject.cs" Link="AppSource\ViewModels\ObservableObject.cs" />
+    <Compile Include="..\..\matchmaking\ViewModels\RelayCommand.cs" Link="AppSource\ViewModels\RelayCommand.cs" />
+  </ItemGroup>
+
+</Project>
